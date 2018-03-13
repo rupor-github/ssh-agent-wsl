@@ -16,6 +16,7 @@
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <string.h>
 #include <libgen.h>
 #include <limits.h>
@@ -38,7 +39,7 @@
 // when multiple sockets are open (the handles are non-functional when they
 // arrive on the Win32 side). When this is defined, the helper is started
 // early and restart won't be attempted if the helper exits.
-#define HELPER_EARLY_START 1
+//#define HELPER_EARLY_START 1
 
 #define FD_FOREACH(fd, set) \
     for (fd = 0; fd < FD_SETSIZE; ++fd) \
@@ -286,7 +287,7 @@ start_win32_helper()
     // Set up stdin/stdout. The original files will be closed at exec.
     posix_spawn_file_actions_adddup2(&action, in_pipe[1], STDOUT_FILENO);
     posix_spawn_file_actions_adddup2(&action, out_pipe[0], STDIN_FILENO);
-
+    
     // Change to (hopefully) a DrvFs filesystem. Otherwise a warning about changing
     // the directory may be shown. In the future, this should check /proc/mounts for
     // a DrvFs path instead of assuming the C: drive is present.
@@ -659,6 +660,22 @@ parse_shell_option(const char *shell_name)
     }
 }
 
+static void
+redirect_fd(const int fd, const int mode, const char *target)
+{
+    if (target == NULL)
+        target = "/dev/null";
+
+    int target_fd = open(target, mode, 0666);
+    if (target_fd < 0)
+        cleanup_warn("redirect_fd/open");
+
+    if (dup2(target_fd, fd) < 0)
+        cleanup_warn("redirect_fd/dup2");
+
+    close(target_fd);
+}
+
 int
 main(int argc, char *argv[])
 {
@@ -851,7 +868,7 @@ main(int argc, char *argv[])
         posix_spawnattr_destroy(&sp_attr);
     }
     else {
-        // Daemon mode
+        // Daemon mode or reuse
         pid_t pid = p_daemonize ? fork() : getpid();
         if (pid < 0)
             cleanup_warn("fork");
@@ -869,10 +886,15 @@ main(int argc, char *argv[])
         else if (setsid() < 0)
             cleanup_warn("setsid");
         else
-            fclose(stderr);
+            // See comment below
+            redirect_fd(STDERR_FILENO, O_WRONLY, NULL);
     }
-    fclose(stdin);
-    fclose(stdout);
+    // Due to what appears to be a weird WSL file descriptor handling bug present
+    // at least up to FCU, closing file descriptors in the parent process breaks
+    // them in a subsequent Win32 process. Instead of closing, replace the
+    // fd with /dev/null.
+    redirect_fd(STDIN_FILENO, O_RDONLY, NULL);
+    redirect_fd(STDOUT_FILENO, O_WRONLY, NULL);
 
     if (!p_sock_reused)
         do_agent_loop(sockfd);
