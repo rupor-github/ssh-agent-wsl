@@ -1,1 +1,0 @@
-/usr/bin/cc  -D_GNU_SOURCE -O3 -DNDEBUG -s   CMakeFiles/ssh-agent-wsl.dir/main.c.o  -o ssh-agent-wsl 

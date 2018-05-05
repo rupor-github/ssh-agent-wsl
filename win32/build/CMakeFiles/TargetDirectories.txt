@@ -1,7 +1,0 @@
-/mnt/e/projects/misc/ssh-agent-wsl/win32/build/CMakeFiles/install/strip.dir
-/mnt/e/projects/misc/ssh-agent-wsl/win32/build/CMakeFiles/install/local.dir
-/mnt/e/projects/misc/ssh-agent-wsl/win32/build/CMakeFiles/pipe-connector.dir
-/mnt/e/projects/misc/ssh-agent-wsl/win32/build/CMakeFiles/edit_cache.dir
-/mnt/e/projects/misc/ssh-agent-wsl/win32/build/CMakeFiles/rebuild_cache.dir
-/mnt/e/projects/misc/ssh-agent-wsl/win32/build/CMakeFiles/install.dir
-/mnt/e/projects/misc/ssh-agent-wsl/win32/build/CMakeFiles/list_install_components.dir

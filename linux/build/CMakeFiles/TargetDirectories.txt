@@ -1,7 +1,0 @@
-/mnt/e/projects/misc/ssh-agent-wsl/linux/build/CMakeFiles/install/strip.dir
-/mnt/e/projects/misc/ssh-agent-wsl/linux/build/CMakeFiles/install/local.dir
-/mnt/e/projects/misc/ssh-agent-wsl/linux/build/CMakeFiles/ssh-agent-wsl.dir
-/mnt/e/projects/misc/ssh-agent-wsl/linux/build/CMakeFiles/edit_cache.dir
-/mnt/e/projects/misc/ssh-agent-wsl/linux/build/CMakeFiles/rebuild_cache.dir
-/mnt/e/projects/misc/ssh-agent-wsl/linux/build/CMakeFiles/install.dir
-/mnt/e/projects/misc/ssh-agent-wsl/linux/build/CMakeFiles/list_install_components.dir

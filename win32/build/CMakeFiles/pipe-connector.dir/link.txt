@@ -1,3 +1,0 @@
-/usr/local/bin/cmake -E remove -f CMakeFiles/pipe-connector.dir/objects.a
-/usr/bin/x86_64-w64-mingw32-ar cr CMakeFiles/pipe-connector.dir/objects.a @CMakeFiles/pipe-connector.dir/objects1.rsp
-/usr/bin/x86_64-w64-mingw32-gcc  -DUNICODE -O3 -DNDEBUG -s   -Wl,--whole-archive CMakeFiles/pipe-connector.dir/objects.a -Wl,--no-whole-archive  -o pipe-connector.exe -Wl,--out-implib,libpipe-connector.dll.a -Wl,--major-image-version,0,--minor-image-version,0 @CMakeFiles/pipe-connector.dir/linklibs.rsp
