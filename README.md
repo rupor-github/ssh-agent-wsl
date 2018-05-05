@@ -49,7 +49,7 @@ to keep the pieces together.)
 Everything could be build under WSL. Windows binary requires MinGW installed, so do something like
 `sudo apt install build-essential cmake binutils-mingw-w64-x86-64 gcc-mingw-w64-x86-64`
 
-To build everything execute:
+To build everything execute (or use `./build-release.sh`):
 
 ```
 cd linux
@@ -93,6 +93,9 @@ Using `ssh-agent-wsl` is very similar to using `ssh-agent` on Linux and similar 
    should now list the keys you have registered in Pageant.
 
 You may even replace your WSL copy of ssh-agent with ssh-agen-wsl to avoid modifying scripts (oh-my-zsh may require special pluging otherwise).
+After adding keys to Windows ssh-agent you may remove them from your home .ssh directory (they are securely persisted in Windows 
+registry, available for your account only) - do not forget to adjust IdentitiesOnly directive in your ssh config accordingly).
+
 NOTE: do not mix usage of ssh-agent-wsl and ssh-agent, only one of them should be used - they are using the same environment
 variables.
 
