@@ -22,7 +22,7 @@ This allows you to share set of SSH keys between multiple WSL and Windows SSH se
 Most importantly, all interaction with the Win32 world happens with the credentials of
 the user who started the WSL environment. In practice, *if you allow someone else to
 log in to your WSL environment remotely, they may be able to access the SSH keys stored in
-your Pageant with `weasel-pageant`.* This is a fundamental feature of WSL; if you
+your ssh-agent with `ssh-agent-wsl`.* This is a fundamental feature of WSL; if you
 are not sure of what you're doing, do not allow remote access to your WSL environment
 (i.e. by starting an SSH server).
 
@@ -85,12 +85,12 @@ Using `ssh-agent-wsl` is very similar to using `ssh-agent` on Linux and similar 
       be active, it will just print environment variables and exit.
 
     * Using `eval` will set the environment variables in the current shell.
-      By default, `weasel-pageant` tries to detect the current shell and output
+      By default, `ssh-agent-wsl` tries to detect the current shell and output
       appropriate commands. If detection fails, then use the `-S SHELL` option
       to define a shell type manually.
 
 3. Restart your shell or type (when using bash) `. ~/.bashrc`. Typing `ssh-add -l`
-   should now list the keys you have registered in Pageant.
+   should now list the keys you have registered in Windows ssh-agent.
 
 You may even replace your WSL copy of ssh-agent with ssh-agen-wsl to avoid modifying scripts (oh-my-zsh may require special pluging otherwise).
 After adding keys to Windows ssh-agent you may remove them from your home .ssh directory (they are securely persisted in Windows 
@@ -104,14 +104,14 @@ variables.
 `ssh-agent-wsl` aims to be compatible with `ssh-agent` options, with a few extras:
 
     $ ssh-agent-wsl -h
-    Usage: weasel-pageant [options] [command [arg ...]]
+    Usage: ssh-agent-wsl [options] [command [arg ...]]
     Options:
       -h, --help     Show this help.
       -v, --version  Display version information.
       -c             Generate C-shell commands on stdout.
       -s             Generate Bourne shell commands on stdout.
       -S SHELL       Generate shell command for "bourne", "csh", or "fish".
-      -k             Kill the current weasel-pageant.
+      -k             Kill the current ssh-agent-wsl.
       -d             Enable debug mode.
       -q             Enable quiet mode.
       -a SOCKET      Create socket on a specific path.
