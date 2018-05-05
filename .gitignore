@@ -45,6 +45,10 @@
 # Kernel Module Compile Results
 *.mod*
 *.cmd
+bin/
+win32/build/
+linux/build/
+*.7z
 .tmp_versions/
 modules.order
 Module.symvers
