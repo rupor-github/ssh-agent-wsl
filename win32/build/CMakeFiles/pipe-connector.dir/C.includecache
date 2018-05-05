@@ -1,0 +1,46 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/mnt/e/projects/misc/ssh-agent-wsl/common.h
+
+/mnt/e/projects/misc/ssh-agent-wsl/win32/agent.c
+stdio.h
+-
+string.h
+-
+stdint.h
+-
+winsock2.h
+-
+windows.h
+-
+../common.h
+/mnt/e/projects/misc/ssh-agent-wsl/common.h
+agent.h
+/mnt/e/projects/misc/ssh-agent-wsl/win32/agent.h
+
+/mnt/e/projects/misc/ssh-agent-wsl/win32/agent.h
+
+/mnt/e/projects/misc/ssh-agent-wsl/win32/main.c
+targetver.h
+/mnt/e/projects/misc/ssh-agent-wsl/win32/targetver.h
+stdint.h
+-
+stdio.h
+-
+windows.h
+-
+agent.h
+/mnt/e/projects/misc/ssh-agent-wsl/win32/agent.h
+../common.h
+/mnt/e/projects/misc/ssh-agent-wsl/common.h
+
+/mnt/e/projects/misc/ssh-agent-wsl/win32/targetver.h
+sdkddkver.h
+-
+

@@ -1,11 +1,12 @@
 #pragma once
 
 /*
-* weasel-pageant Linux/Win32 common header.
-* Copyright 2017  Valtteri Vuorikoski
+* ssh-agent-wsl Linux/Win32 common header.
+*
+* Based on weasel-pageant, Copyright 2017  Valtteri Vuorikoski
 * Based on ssh-pageant, copyright 2009,2014  Josh Stone
 *
-* This file is part of weasel-pageant, and is free software: you can
+* This file is part of ssh-agent-wsl, and is free software: you can
 * redistribute it and/or modify it under the terms of the GNU General
 * Public License as published by the Free Software Foundation, either
 * version 3 of the License, or (at your option) any later version.
@@ -13,7 +14,7 @@
 
 // This file may be included from both the Linux and the Win32 code.
 
-#define AGENT_MAX_MSGLEN  8192
+#define AGENT_MAX_MSGLEN 256 * 1024 // same as in openssh-portable
 
 #define WSLP_CHILD_FLAG_DEBUG (1 << 0)
 

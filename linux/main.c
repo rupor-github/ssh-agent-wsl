@@ -1,10 +1,10 @@
 /*
- * weasel-pageant Linux-side main code.
+ * ssh-agent-wsl Linux-side main code.
  * 
- * Copyright 2017, 2018  Valtteri Vuorikoski
+ * Based on weasel-pageant, Copyright 2017, 2018  Valtteri Vuorikoski
  * Based on ssh-pageant, Copyright 2009-2015  Josh Stone
  *
- * This file is part of weasel-pageant, and is free software: you can
+ * This file is part of ssh-agent-wsl, and is free software: you can
  * redistribute it and/or modify it under the terms of the GNU General
  * Public License as published by the Free Software Foundation, either
  * version 3 of the License, or (at your option) any later version.
@@ -32,12 +32,12 @@
 #include <unistd.h>
 #include <arpa/inet.h>  // needed by common.h
 
-#include "common.h"
+#include "../common.h"
 
 // As of FCU (including earlier releases), a Win32 subprocess is in some
 // sort of relationship with the conhost of the window in which it was started.
 //
-// Daemonizing breaks this, so disable it is disabled for now. weasel-pageant remains
+// Daemonizing breaks this, so disable it is disabled for now. ssh-agent-wsl remains
 // attached to the tty that started it and exits when it goes away. The daemonization
 // code is left here in case things improve in future Windows releases.
 //#define REAL_DAEMONIZE 1
@@ -59,7 +59,7 @@ static pid_t subcommand_pid = 0;
 static pid_t win32_pid = 0;
 static int win32_in = -1;  // input from the win32 helper (connected to its stdout)
 static int win32_out = -1;  // output to the win32 helper (connected to its stdin)
-static char win32_helper_path[PATH_MAX] = "./helper.exe";
+static char win32_helper_path[PATH_MAX] = "./pipe-connector.exe";
 
 static char cleanup_tempdir[PATH_MAX] = "";
 static char cleanup_sockpath[PATH_MAX] = "";
@@ -149,7 +149,7 @@ static void
 cleanup_signal(int sig)
 {
     // Most caught signals are basically just treated as exit notifiers,
-    // but when a child exits, copy its exit status so ssh-pageant is more
+    // but when a child exits, copy its exit status so ssh-agent-wsl is more
     // effective as a command wrapper.
     int status = 0;
     if (sig == SIGCHLD) {
@@ -430,7 +430,7 @@ agent_query(void *buf)
         }
         else if (cnt == 0) {
             // End of file on pipe, the helper went away
-            warn("win32 helper exited during query (read, rem=%llu); aborting", rem);
+            warn("win32 helper exited during query (read, rem=%lu); aborting", rem);
             cleanup_win32(1);
             return -1;
         }
@@ -445,7 +445,7 @@ agent_query(void *buf)
 
             rem = msglen(buf) - 4;  // yep, reset remaining to body size
             if (rem > (AGENT_MAX_MSGLEN - 4)) {  // dummy size
-                warn("win32 helper tried to return %llu bytes; aborting");
+                warn("win32 helper tried to return %lu bytes; aborting", rem);
                 cleanup_win32(1);
                 return -1;
             }
@@ -472,12 +472,12 @@ agent_recv(int fd, struct fd_buf *p)
         return 0;  // more to recv
 
     if (p->recv > msglen(p->buf)) {
-        warnx("recv(%d) = %d (expected %d)",
+        warnx("recv(%d) = %lu (expected %u)",
               fd, p->recv, msglen(p->buf));
         return -1;
     }
 
-    // Pass query to Pageant
+    // Pass query to Windows ssh-agent
     if (agent_query(p->buf) != 0)
         return -1;
 
@@ -500,7 +500,7 @@ agent_send(int fd, struct fd_buf *p)
         return 0;  // more to send
 
     if (p->send > msglen(p->buf)) {
-        warnx("send(%d) = %d (expected %d)",
+        warnx("send(%d) = %lu (expected %u)",
               fd, p->send, msglen(p->buf));
         return -1;
     }
@@ -670,15 +670,15 @@ output_unset_env(const shell_type opt_sh)
     switch (opt_sh) {
         case C_SH:
             printf("unsetenv SSH_AUTH_SOCK;\n");
-            printf("unsetenv SSH_PAGEANT_PID;\n");
+            printf("unsetenv SSH_AGENT_PID;\n");
             break;
         case BOURNE:
             printf("unset SSH_AUTH_SOCK;\n");
-            printf("unset SSH_PAGEANT_PID;\n");
+            printf("unset SSH_AGENT_PID;\n");
             break;
         case FISH:
             printf("set -e SSH_AUTH_SOCK;\n");
-            printf("set -e SSH_PAGEANT_PID;\n");
+            printf("set -e SSH_AGENT_PID;\n");
             break;
         case UNKNOWN:
             break;
@@ -693,17 +693,17 @@ output_set_env(const shell_type opt_sh, const int p_set_pid_env, const char *esc
         case C_SH:
             printf("setenv SSH_AUTH_SOCK %s;\n", escaped_sockpath);
             if (p_set_pid_env)
-                printf("setenv SSH_PAGEANT_PID %d;\n", pid);
+                printf("setenv SSH_AGENT_PID %d;\n", pid);
             break;
         case BOURNE:
             printf("SSH_AUTH_SOCK=%s; export SSH_AUTH_SOCK;\n", escaped_sockpath);
             if (p_set_pid_env)
-                printf("SSH_PAGEANT_PID=%d; export SSH_PAGEANT_PID;\n", pid);
+                printf("SSH_AGENT_PID=%d; export SSH_AGENT_PID;\n", pid);
             break;
         case FISH:
             printf("set -x SSH_AUTH_SOCK %s;\n", escaped_sockpath);
             if (p_set_pid_env)
-                printf("set -x SSH_PAGEANT_PID %d;\n", pid);
+                printf("set -x SSH_AGENT_PID %d;\n", pid);
             break;
         case UNKNOWN:
             break;
@@ -760,7 +760,7 @@ main(int argc, char *argv[])
     }
 
     // Assume that the helper binary is next to the main executable
-    snprintf(win32_helper_path, PATH_MAX, "%s/%s", exec_dir, "helper.exe");
+    snprintf(win32_helper_path, PATH_MAX, "%s/%s", exec_dir, "pipe-connector.exe");
 
     while ((opt = getopt_long(argc, argv, "+hvcsS:kdqa:rt:H:",
                               long_options, NULL)) != -1)
@@ -779,12 +779,12 @@ main(int argc, char *argv[])
                 printf("  -a SOCKET      Create socket on a specific path.\n");
                 printf("  -r, --reuse    Allow to reuse an existing -a SOCKET.\n");
                 printf("  -H, --helper   Path to the Win32 helper binary (default: %s).\n", win32_helper_path);
-                printf("  -t TIME        Limit key lifetime in seconds (not supported by Pageant).\n");
+                printf("  -t TIME        Limit key lifetime in seconds (not supported by Windows port of ssh-agent).\n");
                 return 0;
 
             case 'v':
-                printf("weasel-pageant 1.1.1\n");
-                printf("Copyright 2017, 2018  Valtteri Vuorikoski\n");
+                printf("ssh-agent-wsl 2.0\n");
+                printf("Based on weasel-pageant, copyright 2017, 2018  Valtteri Vuorikoski\n");
                 printf("Based on ssh-pageant, copyright 2009-2014  Josh Stone\n");
                 printf("License GPLv3+: GNU GPL version 3 or later"
                        " <http://gnu.org/licenses/gpl.html>.\n");
@@ -848,15 +848,15 @@ main(int argc, char *argv[])
 
     if (opt_kill) {
         pid_t pid;
-        const char *pidenv = getenv("SSH_PAGEANT_PID");
+        const char *pidenv = getenv("SSH_AGENT_PID");
         if (!pidenv)
-            errx(1, "SSH_PAGEANT_PID not set, cannot kill agent");
+            errx(1, "SSH_AGENT_PID not set, cannot kill agent");
         pid = atoi(pidenv);
         if (kill(pid, SIGTERM) < 0)
             err(1, "kill(%d)", pid);
         output_unset_env(opt_sh);
         if (!opt_quiet)
-            printf("echo ssh-pageant pid %d killed;\n", pid);
+            printf("echo ssh-agent-wsl pid %d killed;\n", pid);
         return 0;
     }
 
@@ -873,7 +873,7 @@ main(int argc, char *argv[])
     }
 
     if (opt_lifetime && !opt_quiet)
-        warnx("option is not supported by Pageant -- t");
+        warnx("option is not supported by Windows port of ssh-agent -- t");
 
     // Preflight the helper path
     if (access(win32_helper_path, X_OK) < 0)
@@ -892,7 +892,7 @@ main(int argc, char *argv[])
     }
 
     // If the sockpath is actually reused, don't daemonize, don't set
-    // SSH_PAGEANT_PID, and don't go into do_agent_loop(). Just set
+    // SSH_AGENT_PID, and don't go into do_agent_loop(). Just set
     // SSH_AUTH_SOCK and exit normally.
     int p_daemonize = !(opt_debug || p_sock_reused);
     int p_set_pid_env = !p_sock_reused;
@@ -904,7 +904,7 @@ main(int argc, char *argv[])
         if (p_set_pid_env) {
             char pidstr[16];
             snprintf(pidstr, sizeof(pidstr), "%d", getpid());
-            setenv("SSH_PAGEANT_PID", pidstr, 1);
+            setenv("SSH_AGENT_PID", pidstr, 1);
         }
         if (!p_sock_reused)
             signal(SIGCHLD, cleanup_signal);
@@ -944,7 +944,7 @@ main(int argc, char *argv[])
             output_set_env(opt_sh, p_set_pid_env, escaped_sockpath, pid);
             free(escaped_sockpath);
             if (p_set_pid_env && !opt_quiet)
-                printf("echo ssh-pageant pid %d;\n", pid);
+                printf("echo ssh-agent-wsl pid %d;\n", pid);
             if (p_daemonize)
                 return 0;
         }

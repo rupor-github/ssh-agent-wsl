@@ -1,7 +1,7 @@
 /*
- * weasel-pageant Win32-side main code.
+ * ssh-agent-wsl Win32-side main code.
  *
- * Copyright 2017  Valtteri Vuorikoski
+ * Based on weasel-pageant: Copyright 2017  Valtteri Vuorikoski
  *
  * This file is part of weasel-pageant, and is free software: you can
  * redistribute it and/or modify it under the terms of the GNU General
@@ -14,16 +14,12 @@
 #include <stdint.h>
 #include <stdio.h>
 
-#include <Windows.h>
+#include <windows.h>
 
-#include "winpgntc.h"
-#include "../linux/common.h"
+#include "agent.h"
+#include "../common.h"
 
-static uint32_t flags = 0;
-
-
-// Send a (narrow) string to standard error, which is expected to be connected to stderr
-// on the linux side.
+// Send a (narrow) string to standard error, which is expected to be connected to stderr on the linux side.
 void print_error(const char *fmt, ...)
 {
     va_list ap;
@@ -34,22 +30,6 @@ void print_error(const char *fmt, ...)
     va_end(ap);
     fprintf(stderr, "\n");
 }
-
-
-void print_debug(const char *fmt, ...)
-{
-    if (!(flags & WSLP_CHILD_FLAG_DEBUG))
-        return;
-
-    va_list ap;
-
-    fprintf(stderr, "win32 helper DEBUG: ");
-    va_start(ap, fmt);
-    vfprintf(stderr, fmt, ap);
-    va_end(ap);
-    fprintf(stderr, "\n");
-}
-
 
 static DWORD read_packet(const HANDLE input, uint8_t *buf)
 {
@@ -133,7 +113,7 @@ static void main_loop(const HANDLE output, const HANDLE input)
         if (!read_packet(input, buf))
             return;
 
-        print_debug("got packet, querying pageant");
+        print_debug("got packet, querying");
 
         // We should have a valid packet in buf. Send it to the agent and
         // buf will be filled with the response.
@@ -148,7 +128,7 @@ static void main_loop(const HANDLE output, const HANDLE input)
 
 int main(const int argc, const char **argv)
 {
-    LPCWSTR test_error = L"This program is part of weasel-pageant and cannot be executed directly.";
+    LPCWSTR test_error = L"This program is part of ssh-agent-wsl and cannot be executed directly.";
 
     const HANDLE out_handle = GetStdHandle(STD_OUTPUT_HANDLE);  // expected to be a pipe where the linux side is listening
     const HANDLE in_handle = GetStdHandle(STD_INPUT_HANDLE);  // ...and where the linux side is sending
@@ -163,6 +143,8 @@ int main(const int argc, const char **argv)
         flags = strtoul(argv[1], NULL, 16);
         print_debug("flags: %08x", flags);
     }
+
+    // RUPOR: this test is weak, it works when this is started from Windows, but  if started from WSL the result is always wrong
 
     // If this succeeds, STD_OUTPUT_HANDLE is attached to a console, meaning that this program
     // is being called manually. 

@@ -1,0 +1,1 @@
+/mnt/e/projects/misc/ssh-agent-wsl/win32/../bin/pipe-connector.exe
