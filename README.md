@@ -97,8 +97,6 @@ You may even replace your WSL copy of ssh-agent with ssh-agent-wsl (renaming or 
 I am using excellent [oh-my-zsh](https://github.com/robbyrussell/oh-my-zsh) and have slightly modified version of `ssh-agent` plugin for this purpose:
 ```
 function _start_agent() {
-	local -a identities
-
 	echo starting ssh-agent-wsl...
 	ssh-agent-wsl -s | sed 's/^echo/#echo/' >! $_ssh_env_cache
 	chmod 600 $_ssh_env_cache
