@@ -26,8 +26,9 @@ your ssh-agent with `ssh-agent-wsl`.* This is a fundamental feature of WSL; if y
 are not sure of what you're doing, do not allow remote access to your WSL environment
 (i.e. by starting an SSH server).
 
-**COMPATIBILITY NOTICE:** `ssh-agent-wsl` was tested on Windows 10 1803 (April Update) and should work on anything starting with
-1703 (Creators update) but would not work on a version of Windows 10 older than 1703, because
+**COMPATIBILITY NOTICE:** `ssh-agent-wsl` was tested on Windows 10 1803 (April Update) with Ubuntu 16.04 and Ununtu 18.04 (amazingly
+under 18.04 standard `ssh-agent` did not function well out of the box - ssh-agent-wsl does) and should
+work on anything starting with 1703 (Creators update) but would not work on a version of Windows 10 older than 1703, because
 it requires the new [Windows/Ubuntu interoperability support](https://blogs.msdn.microsoft.com/wsl/2016/10/19/windows-and-ubuntu-interoperability/)
 feature shipped with version 1703.
 
@@ -74,7 +75,7 @@ The release binaries have been built on Ubuntu 16.04 WSL.
 
 Using `ssh-agent-wsl` is very similar to using `ssh-agent` on Linux and similar operating systems.
 
-1. Ensure that Windows ssh-agent service is started (you may want to switch its startup mode to "automatic").
+1. Ensure that Windows `ssh-agent` service is started (you may want to switch its startup mode to "automatic").
 2. Edit your `~/.bashrc` (or `~/.bash_profile`) to add the following:
 
         eval $(<location where you unpacked the zip>/ssh-agent-wsl -r)
@@ -91,9 +92,9 @@ Using `ssh-agent-wsl` is very similar to using `ssh-agent` on Linux and similar 
       to define a shell type manually.
 
 3. Restart your shell or type (when using bash) `. ~/.bashrc`. Typing `ssh-add -l`
-   should now list the keys you have registered in Windows ssh-agent.
+   should now list the keys you have registered in Windows `ssh-agent`.
 
-You may even replace your WSL copy of ssh-agent with ssh-agent-wsl (renaming or linking it) to avoid modifying your scripts.
+You may even replace your WSL copy of `ssh-agent` with `ssh-agent-wsl` (renaming or linking it) to avoid modifying your scripts.
 I am using excellent [oh-my-zsh](https://github.com/robbyrussell/oh-my-zsh) and have slightly modified version of `ssh-agent` plugin for this purpose:
 ```
 function _start_agent() {
@@ -104,10 +105,10 @@ function _start_agent() {
 }
 ```
 
-After adding keys to Windows ssh-agent you may remove them from your home .ssh directory (keys are securely persisted in Windows
+After adding keys to Windows `ssh-agent` you may remove them from your home .ssh directory (keys are securely persisted in Windows
 registry, available for your account only) - do not forget to adjust IdentitiesOnly directive in your ssh config accordingly).
 
-NOTE: do not mix usage of ssh-agent-wsl and ssh-agent, only one of them should be used - they are using the same environment
+NOTE: do not mix `ssh-agent-wsl` and `ssh-agent`, only one of them should be used - they are using the same environment
 variables.
 
 ## Options
