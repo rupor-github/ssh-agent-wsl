@@ -3,7 +3,7 @@
 
 Since Windows April update official OpenSSH port exited beta (and it has been available for a long time). It has very
 convenient `ssh-agent` service (with support for persistence and Windows security). Unfortunately it is not accessible from WSL.
-This project aims to correct this situation enabling access of SSH keys held by Windows own `ssh-agent` service from inside the
+This project aims to correct this situation by enabling access to SSH keys held by Windows own `ssh-agent` service from inside the
 [Windows Subsystem for Linux](https://msdn.microsoft.com/en-us/commandline/wsl/about).
 
 The source (and this documentation) here is heavily based on
