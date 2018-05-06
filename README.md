@@ -27,7 +27,7 @@ are not sure of what you're doing, do not allow remote access to your WSL enviro
 (i.e. by starting an SSH server).
 
 **COMPATIBILITY NOTICE:** `ssh-agent-wsl` was tested on Windows 10 1803 (April Update) with Ubuntu 16.04 and Ununtu 18.04 (amazingly
-under 18.04 standard `ssh-agent` did not function well out of the box - ssh-agent-wsl does) and should
+under 18.04 standard `ssh-agent` did not function well out of the box - `ssh-agent-wsl` does) and should
 work on anything starting with 1703 (Creators update) but would not work on a version of Windows 10 older than 1703, because
 it requires the new [Windows/Ubuntu interoperability support](https://blogs.msdn.microsoft.com/wsl/2016/10/19/windows-and-ubuntu-interoperability/)
 feature shipped with version 1703.
