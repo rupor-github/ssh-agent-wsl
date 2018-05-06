@@ -47,7 +47,7 @@ to keep the pieces together.)
 ### From source
 
 Everything could be build under WSL. Windows binary requires MinGW installed, so do something like
-`sudo apt install build-essential cmake binutils-mingw-w64-x86-64 gcc-mingw-w64-x86-64`
+`sudo apt install build-essential cmake mingw-w64`
 
 To build everything execute (or use `./build-release.sh`):
 
@@ -61,11 +61,12 @@ cd ../..
 cd win32
 mkdir build
 cd build
+cmake ..
 make install
 cd ../..
 ```
 
-Results will be available in `bin` directory.
+Results will be available in `./bin` directory.
 
 The release binaries have been built on Ubuntu 16.04 WSL.
 
@@ -92,8 +93,20 @@ Using `ssh-agent-wsl` is very similar to using `ssh-agent` on Linux and similar 
 3. Restart your shell or type (when using bash) `. ~/.bashrc`. Typing `ssh-add -l`
    should now list the keys you have registered in Windows ssh-agent.
 
-You may even replace your WSL copy of ssh-agent with ssh-agen-wsl to avoid modifying scripts (oh-my-zsh may require special pluging otherwise).
-After adding keys to Windows ssh-agent you may remove them from your home .ssh directory (they are securely persisted in Windows 
+You may even replace your WSL copy of ssh-agent with ssh-agent-wsl (renaming or linking it) to avoid modifying your scripts.
+I am using excellent [oh-my-zsh](https://github.com/robbyrussell/oh-my-zsh) and have slightly modified version of `ssh-agent` plugin for this purpose:
+```
+function _start_agent() {
+	local -a identities
+
+	echo starting ssh-agent-wsl...
+	ssh-agent-wsl -s | sed 's/^echo/#echo/' >! $_ssh_env_cache
+	chmod 600 $_ssh_env_cache
+	. $_ssh_env_cache > /dev/null
+}
+```
+
+After adding keys to Windows ssh-agent you may remove them from your home .ssh directory (keys are securely persisted in Windows
 registry, available for your account only) - do not forget to adjust IdentitiesOnly directive in your ssh config accordingly).
 
 NOTE: do not mix usage of ssh-agent-wsl and ssh-agent, only one of them should be used - they are using the same environment
@@ -141,6 +154,7 @@ to your shell initialization files (e.g. `.bashrc`).
 ------------------------------------------------------------------------------
 
 Based on `weasel-pegeant` Copyright 2017, 2018  Valtteri Vuorikoski.
+
 Based on `ssh-pageant`, copyright (C) 2009-2014  Josh Stone.
 
 Licensed under the GNU GPL version 3 or later, http://gnu.org/licenses/gpl.html
