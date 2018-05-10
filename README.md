@@ -1,4 +1,4 @@
-﻿ssh-agent-wsl
+﻿"ssh-agent-wsl"
 --------------
 
 Since Windows April update official OpenSSH port exited beta (and it has been available for a long time). It has very
@@ -139,7 +139,7 @@ is stored. If you have placed it elsewhere, the `-H` flag can be used to set the
 * If you have an `SSH_AUTH_SOCK` variable set inside `screen`, `tmux` or similar,
   you exit the WSL console from which the `screen` was *initially started* and attach
   to the session from another window, the agent connection will not be usable. This is
-  due to WSL/Win32 interop limitations.
+  due to WSL/Win32 interop limitations. So start `ssh-agent-wsl` before `tmux`.
 
 * There is a slight delay when exiting a WSL console before the window actually closes.
   This is due to a polling loop which works around a WSL incompatibility with Unix session
