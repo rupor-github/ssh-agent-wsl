@@ -42,7 +42,7 @@ Download the archive from the [releases page](https://github.com/rupor-github/ss
 and unpack it in a convenient location *on the Windows part of your drive*.
 Because WSL can only execute Win32 binaries from `drvfs` locations, `ssh-agent-wsl`
 *will not work* if unpacked inside the WSL filesystem (onto an `lxfs` mount).
-(Advanced users may place only `helper.exe` on `drvfs`, but in general it is easier
+(Advanced users may place only `pipe-connector.exe` on `drvfs`, but in general it is easier
 to keep the pieces together.)
 
 ### From source
