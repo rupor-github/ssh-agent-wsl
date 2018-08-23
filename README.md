@@ -75,7 +75,7 @@ The release binaries have been built on Ubuntu 16.04 WSL.
 
 Using `ssh-agent-wsl` is very similar to using `ssh-agent` on Linux and similar operating systems.
 
-1. Ensure that Windows `ssh-agent` service is started (you may want to switch its startup mode to "automatic").
+1. Ensure that on Windows side `ssh-agent` service (OpenSSH Authentication Agent) is started - you may want to switch its startup mode to "automatic".
 2. Edit your `~/.bashrc` (or `~/.bash_profile`) to add the following:
 
         eval $(<location where you unpacked the zip>/ssh-agent-wsl -r)
