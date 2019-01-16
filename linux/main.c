@@ -783,7 +783,7 @@ main(int argc, char *argv[])
                 return 0;
 
             case 'v':
-                printf("ssh-agent-wsl 2.0\n");
+                printf("ssh-agent-wsl 2.1\n");
                 printf("Based on weasel-pageant, copyright 2017, 2018  Valtteri Vuorikoski\n");
                 printf("Based on ssh-pageant, copyright 2009-2014  Josh Stone\n");
                 printf("License GPLv3+: GNU GPL version 3 or later"
