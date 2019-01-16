@@ -856,7 +856,7 @@ main(int argc, char *argv[])
             err(1, "kill(%d)", pid);
         output_unset_env(opt_sh);
         if (!opt_quiet)
-            printf("echo ssh-agent-wsl pid %d killed;\n", pid);
+            printf("echo Agent pid %d killed;\n", pid);
         return 0;
     }
 
@@ -944,7 +944,7 @@ main(int argc, char *argv[])
             output_set_env(opt_sh, p_set_pid_env, escaped_sockpath, pid);
             free(escaped_sockpath);
             if (p_set_pid_env && !opt_quiet)
-                printf("echo ssh-agent-wsl pid %d;\n", pid);
+                printf("echo Agent pid %d;\n", pid);
             if (p_daemonize)
                 return 0;
         }
