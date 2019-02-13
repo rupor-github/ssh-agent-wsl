@@ -1,4 +1,4 @@
-﻿#!env bash
+#!env bash
 
 _dist=bin
 

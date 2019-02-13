@@ -165,7 +165,7 @@ cleanup_signal(int sig)
         else {
             // This shouldn't happen. Exit in case subcommand tracking failed (this
             // is what we silently did before).
-            debug_print("received SIGCHLD for unknown child (subcommand_pid=%d win32_pid=%d)", subcommand_pid, win32_pid);
+            fprintf(stderr, "received SIGCHLD for unknown child (subcommand_pid=%d win32_pid=%d)", subcommand_pid, win32_pid);
             status = 55;
         }
     }
@@ -526,7 +526,7 @@ check_tty_gone()
             // Controlling terminal is gone
             cleanup_exit(0);
         else
-            warnx("checking controlling terminal failed");
+            warn("checking controlling terminal failed");
     }
     else
         // We are still attached to a terminal
@@ -783,7 +783,7 @@ main(int argc, char *argv[])
                 return 0;
 
             case 'v':
-                printf("ssh-agent-wsl 2.1\n");
+                printf("ssh-agent-wsl 2.2\n");
                 printf("Based on weasel-pageant, copyright 2017, 2018  Valtteri Vuorikoski\n");
                 printf("Based on ssh-pageant, copyright 2009-2014  Josh Stone\n");
                 printf("License GPLv3+: GNU GPL version 3 or later"
@@ -967,6 +967,11 @@ main(int argc, char *argv[])
             signal(SIGCHLD, cleanup_signal);
         }
 #else
+         // Detach from process group but not the session to keep the controlling
+        // tty but avoid receiving the foreground process group's signals. See
+        // comments for check_tty_gone on why these tricks are needed.
+        else if (setpgid(0, 0) < 0)
+            cleanup_warn("setpgid");
         else
             // Set up SIGCHLD handler to catch the helper process exiting
             signal(SIGCHLD, cleanup_signal);
