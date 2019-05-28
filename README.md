@@ -1,4 +1,4 @@
-﻿"ssh-agent-wsl"
+"ssh-agent-wsl"
 --------------
 
 Since Windows April update official OpenSSH port exited beta (and it has been available for a long time). It has very
@@ -35,6 +35,11 @@ feature shipped with version 1703.
 Non-Ubuntu distributions (available since 1709) have not been tested, but they should work as well.
 
 ## Installation
+
+### From the [Scoop package manager](https://scoop.sh/)
+
+Run `scoop install ssh-agent-wsl`. After installation, it will echo the correct line to add to your `.bashrc`.
+This method uses the latest binary release from GitHub.
 
 ### From binaries
 
