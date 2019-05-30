@@ -38,8 +38,12 @@ Non-Ubuntu distributions (available since 1709) have not been tested, but they s
 
 ### From the [Scoop package manager](https://scoop.sh/)
 
-Run `scoop install ssh-agent-wsl`. After installation, it will echo the correct line to add to your `.bashrc`.
-This method uses the latest binary release from GitHub.
+Run the following to install with scoop
+
+    scoop bucket add extras
+    scoop install ssh-agent-wsl
+
+It will echo a line to add to your profile, .bashrc, or .zshrc. This installs the latest binary from Github.
 
 ### From binaries
 
