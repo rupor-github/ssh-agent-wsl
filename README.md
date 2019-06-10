@@ -140,6 +140,7 @@ variables.
       -d             Enable debug mode.
       -q             Enable quiet mode.
       -a SOCKET      Create socket on a specific path.
+      -b             Do not exit when tty closes (only use on Windows 10 version 1809 and newer).
       -r, --reuse    Allow to reuse an existing -a SOCKET.
       -H, --helper   Path to the Win32 helper binary (default: /mnt/e/projects/misc/ssh-agent-wsl/bin/pipe-connector.exe).
       -t TIME        Limit key lifetime in seconds (not supported by Windows port of ssh-agent).
@@ -152,7 +153,9 @@ is stored. If you have placed it elsewhere, the `-H` flag can be used to set the
 * If you have an `SSH_AUTH_SOCK` variable set inside `screen`, `tmux` or similar,
   you exit the WSL console from which the `screen` was *initially started* and attach
   to the session from another window, the agent connection will not be usable. This is
-  due to WSL/Win32 interop limitations. So start `ssh-agent-wsl` before `tmux`.
+  due to WSL/Win32 interop limitations. So start `ssh-agent-wsl` before `tmux` or if 
+  you have Windows 10 version 1809 and newer try adding the `-b` flag to the `ssh-agent-wsl`
+  command line.
 
 * There is a slight delay when exiting a WSL console before the window actually closes.
   This is due to a polling loop which works around a WSL incompatibility with Unix session
