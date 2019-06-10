@@ -54,6 +54,8 @@ struct fd_buf {
 };
 
 static int opt_debug = 0;
+static int tty_gone = 0;
+static int opt_no_exit = 0;
 
 static pid_t subcommand_pid = 0;
 static pid_t win32_pid = 0;
@@ -430,7 +432,7 @@ agent_query(void *buf)
         }
         else if (cnt == 0) {
             // End of file on pipe, the helper went away
-            warn("win32 helper exited during query (read, rem=%lu); aborting", rem);
+            warn("win32 helper exited during query (read, rem=%llu); aborting", rem);
             cleanup_win32(1);
             return -1;
         }
@@ -445,7 +447,7 @@ agent_query(void *buf)
 
             rem = msglen(buf) - 4;  // yep, reset remaining to body size
             if (rem > (AGENT_MAX_MSGLEN - 4)) {  // dummy size
-                warn("win32 helper tried to return %lu bytes; aborting", rem);
+                warn("win32 helper tried to return %llu bytes; aborting", rem);
                 cleanup_win32(1);
                 return -1;
             }
@@ -472,7 +474,7 @@ agent_recv(int fd, struct fd_buf *p)
         return 0;  // more to recv
 
     if (p->recv > msglen(p->buf)) {
-        warnx("recv(%d) = %lu (expected %u)",
+        warnx("recv(%d) = %d (expected %d)",
               fd, p->recv, msglen(p->buf));
         return -1;
     }
@@ -500,7 +502,7 @@ agent_send(int fd, struct fd_buf *p)
         return 0;  // more to send
 
     if (p->send > msglen(p->buf)) {
-        warnx("send(%d) = %lu (expected %u)",
+        warnx("send(%d) = %d (expected %d)",
               fd, p->send, msglen(p->buf));
         return -1;
     }
@@ -520,11 +522,22 @@ static void
 check_tty_gone()
 {
 #if !REAL_DAEMONIZE
+    if (tty_gone && opt_no_exit)
+        return;
     int fd = open("/dev/tty", O_RDONLY);
     if (fd < 0) {
-        if (errno == ENOTTY)
-            // Controlling terminal is gone
-            cleanup_exit(0);
+        if (errno == ENOTTY) {
+            if (opt_no_exit) {
+                // Controlling terminal is gone, kill the helper process so the parent conhost can exit
+                if (win32_pid > 0 && kill(win32_pid, SIGTERM) < 0)
+                    err(1, "kill(%d)", win32_pid);
+                tty_gone = 1;
+            }
+            else {
+                // Controlling terminal is gone
+                cleanup_exit(0);
+            }
+        }
         else
             warn("checking controlling terminal failed");
     }
@@ -533,7 +546,6 @@ check_tty_gone()
         close(fd);
 #endif
 }
-
 
 static void
 do_agent_loop(int sockfd)
@@ -762,7 +774,7 @@ main(int argc, char *argv[])
     // Assume that the helper binary is next to the main executable
     snprintf(win32_helper_path, PATH_MAX, "%s/%s", exec_dir, "pipe-connector.exe");
 
-    while ((opt = getopt_long(argc, argv, "+hvcsS:kdqa:rt:H:",
+    while ((opt = getopt_long(argc, argv, "+hvcsS:kdqa:rt:H:b",
                               long_options, NULL)) != -1)
         switch (opt) {
             case 'h':
@@ -777,13 +789,14 @@ main(int argc, char *argv[])
                 printf("  -d             Enable debug mode.\n");
                 printf("  -q             Enable quiet mode.\n");
                 printf("  -a SOCKET      Create socket on a specific path.\n");
+                printf("  -b             Do not exit when tty closes (only use on Windows 10 version 1809 and newer).\n");
                 printf("  -r, --reuse    Allow to reuse an existing -a SOCKET.\n");
                 printf("  -H, --helper   Path to the Win32 helper binary (default: %s).\n", win32_helper_path);
                 printf("  -t TIME        Limit key lifetime in seconds (not supported by Windows port of ssh-agent).\n");
                 return 0;
 
             case 'v':
-                printf("ssh-agent-wsl 2.2\n");
+                printf("ssh-agent-wsl 2.3\n");
                 printf("Based on weasel-pageant, copyright 2017, 2018  Valtteri Vuorikoski\n");
                 printf("Based on ssh-pageant, copyright 2009-2014  Josh Stone\n");
                 printf("License GPLv3+: GNU GPL version 3 or later"
@@ -834,6 +847,10 @@ main(int argc, char *argv[])
             case 'H':
                 if (realpath(optarg, win32_helper_path) == NULL)
                     err(1, "invalid helper path (use --helper to specify the Win32 helper path)");
+                break;
+
+            case 'b':
+                opt_no_exit = 1;
                 break;
 
             case '?':
@@ -967,7 +984,7 @@ main(int argc, char *argv[])
             signal(SIGCHLD, cleanup_signal);
         }
 #else
-         // Detach from process group but not the session to keep the controlling
+        // Detach from process group but not the session to keep the controlling
         // tty but avoid receiving the foreground process group's signals. See
         // comments for check_tty_gone on why these tricks are needed.
         else if (setpgid(0, 0) < 0)
