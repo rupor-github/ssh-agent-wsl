@@ -142,7 +142,7 @@ variables.
       -a SOCKET      Create socket on a specific path.
       -b             Do not exit when tty closes (only use on Windows 10 version 1809 and newer).
       -r, --reuse    Allow to reuse an existing -a SOCKET.
-      -H, --helper   Path to the Win32 helper binary (default: /mnt/e/projects/misc/ssh-agent-wsl/bin/pipe-connector.exe).
+      -H, --helper   Path to the Win32 helper binary (default: ./pipe-connector.exe).
       -t TIME        Limit key lifetime in seconds (not supported by Windows port of ssh-agent).
 
 By default, the Win32 helper will be searched for in the same directory where `ssh-agent-wsl`
