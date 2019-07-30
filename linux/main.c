@@ -796,7 +796,7 @@ main(int argc, char *argv[])
                 return 0;
 
             case 'v':
-                printf("ssh-agent-wsl 2.3\n");
+                printf("ssh-agent-wsl 2.4\n");
                 printf("Based on weasel-pageant, copyright 2017, 2018  Valtteri Vuorikoski\n");
                 printf("Based on ssh-pageant, copyright 2009-2014  Josh Stone\n");
                 printf("License GPLv3+: GNU GPL version 3 or later"
@@ -871,13 +871,19 @@ main(int argc, char *argv[])
         pid = atoi(pidenv);
         if (kill(pid, SIGTERM) < 0)
             err(1, "kill(%d)", pid);
+
+#if !REAL_DAEMONIZE
+        // wait a bit here, so helper could properly die, otherwise WSL gets confused and starts consuming CPU...
+        sleep(1);
+#endif
+
         output_unset_env(opt_sh);
         if (!opt_quiet)
             if (!strcasecmp((const char*)program_invocation_short_name, "ssh-agent")) {
                 // Make sure output is compatible with openssh
                 printf("echo Agent pid %d killed;\n", pid);
             } else {
-                printf("echo ssh-agent-wsl pid killed%d;\n", pid);
+                printf("echo ssh-agent-wsl pid %s killed;\n", pid);
             }
         return 0;
     }
