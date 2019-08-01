@@ -166,7 +166,7 @@ is stored. If you have placed it elsewhere, the `-H` flag can be used to set the
   is no conhost.exe it was attached to initially. Situation may be difficult to reproduce (its timing dependent) when you
   are using wsltty, since exiting wslbridge takes time. The only workaround known to me is to properly kill ssh-agent-wsl
   by running `ssh-agent-wsl -k` on exit. Please, note, that if you are running multiple instances of shell, tmux and such this
-  may not be a trivial undertaking as you need to carefully track when the last shell is exiting. Please see issue #11 for
+  may not be a trivial undertaking as you need to carefully track when the last shell is exiting. Please see [this issue](https://github.com/rupor-github/ssh-agent-wsl/issues/11) for
   some suggestions.
 
 ## Uninstallation
