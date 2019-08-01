@@ -161,6 +161,14 @@ is stored. If you have placed it elsewhere, the `-H` flag can be used to set the
   This is due to a polling loop which works around a WSL incompatibility with Unix session
   semantics.
 
+* Sometimes when exiting WSL it gets confused and init process under which pipe-connector.exe is running goes into the
+  high-CPU consuming loop. Unfortunately it happens after pipe-connector already exited and looks like it happens when there
+  is no conhost.exe it was attached to initially. Situation may be difficult to reproduce (its timing dependent) when you
+  are using wsltty, since exiting wslbridge takes time. The only workaround known to me is to properly kill ssh-agent-wsl
+  by running `ssh-agent-wsl -k` on exit. Please, note, that if you are running multiple instances of shell, tmux and such this
+  may not be a trivial undertaking as you need to carefully track when the last shell is exiting. Please see issue #11 for
+  some suggestions.
+
 ## Uninstallation
 
 To uninstall, just remove the extracted files and any modifications you made
