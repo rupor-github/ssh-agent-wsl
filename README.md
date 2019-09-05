@@ -1,6 +1,8 @@
 "ssh-agent-wsl"
 --------------
 
+**Please, see my new project [wsl-ssh-agent](https://github.com/rupor-github/wsl-ssh-agent) - it aims to be much easier to use while avoiding all known issues. This project will receive no updates and will be archived in the new future.**
+
 Since Windows April update official OpenSSH port exited beta (and it has been available for a long time). It has very
 convenient `ssh-agent` service (with support for persistence and Windows security). Unfortunately it is not accessible from WSL.
 This project aims to correct this situation by enabling access to SSH keys held by Windows own `ssh-agent` service from inside the
